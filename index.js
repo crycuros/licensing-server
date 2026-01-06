@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const supabase = require('./lib/supabase');
-const { encrypt } = require('./lib/crypto');
+const { sign } = require('./lib/jwt');
 require('dotenv').config();
 
 const app = express();
@@ -63,8 +63,6 @@ app.post('/api/verify', async (req, res) => {
         .eq('id', license.id);
     }
 
-    // 5. Generate encrypted response
-    // The client will decrypt this to verify authenticity
     const responseData = {
       valid: true,
       licenseKey: licenseKey,
@@ -73,7 +71,11 @@ app.post('/api/verify', async (req, res) => {
       checkTimestamp: Date.now()
     };
 
-    const encryptedResponse = encrypt(responseData);
+    if (!process.env.LICENSE_PRIVATE_KEY) {
+      return res.status(500).json({ error: 'Server key missing' });
+    }
+
+    const encryptedResponse = sign(responseData);
 
     return res.json({
       status: 'active',
