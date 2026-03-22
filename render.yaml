@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: licensing-server
+    env: node
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: node dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: LICENSE_ADMIN_KEY
+        value: MNDProductionBosschito093135.Kimchard@0330
+      - key: CORS_ORIGIN
+        value: "*"
+    plan: free
+    autoDeploy: true
